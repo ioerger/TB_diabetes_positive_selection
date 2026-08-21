@@ -185,19 +185,6 @@ def write_outputs(haps, tree_root, outdir, label_of=None):
         rep_label = {h["rep"]: label_of.get(h["rep"], "") for h in haps}
         (outdir / "tree.labelled.nwk").write_text(labelled_clades_newick(pruned, alias_of, rep_label) + "\n")
 
-    # alias.txt -- map each alias back to its isolate(s)
-    with open(outdir / "alias.txt", "w") as fh:
-        fh.write("# alias = representative_isolate   (n_isolates)   members\n")
-        fh.write("# these are the names codeml prints in its output; use this to read them back\n")
-        for h in haps:
-            fh.write(f"{h['alias']} = {h['rep']}   ({len(h['members'])} isolate"
-                     f"{'s' if len(h['members']) > 1 else ''})   {','.join(h['members'])}\n")
-
-    # isolates_N.txt -- the collapsed isolate list (one representative per distinct sequence)
-    with open(outdir / f"isolates_{len(haps)}.txt", "w") as fh:
-        for h in haps:
-            fh.write(h["rep"] + "\n")
-
     return len(haps), L // 3, len(leaves(pruned))
 
 
@@ -229,8 +216,7 @@ def main():
           + (f"  [labels kept separate: {', '.join(sorted(set(label_of.values())))}]" if labelled else ""))
     print(f"tree     : pruned to {n_tip} tips")
     print("group sizes (isolates per haplotype):", [len(h["members"]) for h in haps])
-    print(f"wrote align.phy, tree.nwk{', tree.labelled.nwk' if labelled else ''}, alias.txt, "
-          f"isolates_{n_hap}.txt to {args.outdir}")
+    print(f"wrote align.phy, tree.nwk{', tree.labelled.nwk' if labelled else ''} to {args.outdir}")
 
 
 if __name__ == "__main__":
