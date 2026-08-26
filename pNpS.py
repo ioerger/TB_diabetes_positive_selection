@@ -38,28 +38,41 @@ def trans(codon): return codon_table.get(codon,'?')
 ####################################
 # read refseqs
 
+SEQSFILE = sys.argv[1]
+REFSEQSFILE = sys.argv[2]
+ORFID = sys.argv[3]
+
+def usage():
+  print("usage: python pNpS.py <seqs_fasta> --refseqs <fasta> --orfid XXXX",file=sys.stderr)
+  sys.exit(0)
+
+if "--refseqs" in sys.argv: REFSEQSFILE = sys.argv[sys.argv.index("--refseqs")+1]
+else: usage()
+
+if "--orfid" in sys.argv: ORFID = sys.argv[sys.argv.index("--orfid")+1]
+else: usage()
+
 RefSeqs = {}
-refHdrs,refSeqs = read_fasta(sys.argv[2])
+refHdrs,refSeqs = read_fasta(REFSEQSFILE)
 for hdr,seq in zip(refHdrs,refSeqs):
-  orfid = hdr[1:].split()[0] # strip off leading '>'
+  orfid = hdr[1:].split()[0] # strip off leading '>'; assume orfid is first symbol
   RefSeqs[orfid] = seq
   
 ####################################
   
-orfid = sys.argv[1]
-if '/' in orfid: orfid = orfid[orfid.rfind('/')+1:] # extract just the base name of the file
-orfid = orfid[:orfid.find('.')]
+orfid = ORFID
 refseq = RefSeqs[orfid]
 
-Hdrs,Seqs = read_fasta(sys.argv[1])
+# assume all sequences are aligned to the refseq, and hence have the same lengths
+
+Hdrs,Seqs = read_fasta(SEQSFILE)
 Nseqs = len(Seqs)
-Ncodons = int(len(Seqs[0])/3)
+Ncodons = int(len(Seqs[0])/3) 
 print("%s: num seqs=%s, seq len=%s, num codons=%s" % (orfid,Nseqs,len(Seqs[0]),Ncodons))
 
 goodcodons = {}
 for codon,aa in codon_table.items(): # defined in codon_frequencies.py
   if 'N' not in codon: goodcodons[codon] = 1
-#print(len(goodcodons)) # 64
 
 totSitesS,totSitesNS = 0,0 # sum of possible alleles
 totObsS,totObsNS = 0,0 # observed alleles
