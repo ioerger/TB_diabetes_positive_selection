@@ -1,11 +1,16 @@
 # TB_diabetes_positive_selection
 
 **Calculating pN/pS for a gene** 
-input args: a fasta file with aligned sequences, and  a file with reference sequences for each ORF
+input args: a fasta file with aligned sequences for a given ORF, a file with reference sequences for each ORF, and the orfid
+instead of doing all pairwise comparisons between seqs, this script compares each seq to a reference sequence
+notes: input seqs should be aligned to reference sequence and all same length
+       the refseqs file should also be a fasta file, with the orfid as the first symbol in the header
+
+usage: python pNpS.py <seqs_fasta> --refseqs <fasta> --orfid XXXX 
 
 example:
 ```
-> python3 pNpS.py Rv0006.seqs.noLC.txt H37Rv3_orfs.fna
+> python3 pNpS.py Rv0006.seqs.noLC.txt --refseqs H37Rv3_orfs.fna --orfid Rv0006
 Rv3508: num seqs=178, seq len=5703, num codons=1901
 1       ATG     M       178     0       9       0       0 {'ATG': 178}
 2       TCG     S       178     3       6       0       0 {'TCG': 178}
