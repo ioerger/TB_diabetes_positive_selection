@@ -69,6 +69,7 @@ Hdrs,Seqs = read_fasta(SEQSFILE)
 Nseqs = len(Seqs)
 Ncodons = int(len(Seqs[0])/3) 
 print("%s: num seqs=%s, seq len=%s, num codons=%s" % (orfid,Nseqs,len(Seqs[0]),Ncodons))
+print('\t'.join("resnum codon aa Nseqs possS possNS obsS obsNS alleles".split()))
 
 goodcodons = {}
 for codon,aa in codon_table.items(): # defined in codon_frequencies.py
@@ -109,15 +110,19 @@ for i in range(Ncodons):
     else: obsNS += 1; locNS += 1; print("warning: multiple changes in aa %s: %s -> %s" % (i+1,ref,mut)) # for codons with multiple nuc substitutions
 
   vals = [i+1,ref,refaa,good,locS,locNS,obsS,obsNS]
-  print('\t'.join([str(x) for x in vals]),alleles)
+  vals.append(','.join(["%s(%s):%s" % (x,trans(x),y) for (x,y) in list(alleles.items())]))
+  print('\t'.join([str(x) for x in vals]))
 
   totObsS += obsS
   totObsNS += obsNS
   totSitesS += locS
   totSitesNS += locNS
 
+totSitesS /= 3 # since we counted 3 possible changes for each nucleotide
+totSitesNS /= 3
+
 pN = (totObsNS+1)/float(totSitesNS+1) # use pseudocounts to avoid div-by-zero
 pS = (totObsS+1)/float(totSitesS+1)
 pNpS = pN/pS
 
-print("%s summary: codons=%s, totObsNS=%s, totObsS=%s, totSitesNS=%s, totSitesSS=%s, NS/S=%0.6f, pN=%0.6f, pS=%0.6f, pN/pS=%0.6f" % (orfid,Ncodons,totObsNS,totObsS,totSitesNS,totSitesS,totSitesNS/float(totSitesS),pN,pS,pNpS))
+print("%s summary: codons=%s, totObsNS=%s, totObsS=%s, totSitesNS=%s, totSitesS=%s, NS/S=%0.6f, pN=%0.6f, pS=%0.6f, pN/pS=%0.6f" % (orfid,Ncodons,totObsNS,totObsS,round(totSitesNS,2),round(totSitesS,2),totSitesNS/float(totSitesS),pN,pS,pNpS))

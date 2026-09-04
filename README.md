@@ -14,16 +14,19 @@ notes:
 example:
 ```
 > python3 pNpS.py Rv0006.seqs.noLC.txt --refseqs H37Rv3_orfs.fna --orfid Rv0006
-Rv3508: num seqs=178, seq len=5703, num codons=1901
-1       ATG     M       178     0       9       0       0 {'ATG': 178}
-2       TCG     S       178     3       6       0       0 {'TCG': 178}
-3       TTC     F       178     1       8       0       0 {'TTC': 178}
+Rv0006: num seqs=178, seq len=2514, num codons=838
+Rv0006: num seqs=178, seq len=2514, num codons=838
+resnum	codon	aa	Nseqs	possS	possNS	obsS	obsNS	alleles
+1	ATG	M	178	0	9	0	0	ATG(M):178
+2	ACA	T	178	3	6	0	0	ACA(T):178
+3	GAC	D	178	1	8	0	0	GAC(D):178
 ...
-1898    ACC     T       167     3       6       0       1 {'GCC': 5, 'ACC': 162}
-1899    GAC     D       173     1       8       0       0 {'GAC': 173}
-1900    GGC     G       173     3       6       0       0 {'GGC': 173}
-1901    AGC     S       176     1       8       0       0 {'AGC': 176}
-Rv3508 summary: codons=1901, totObsNS=44, totObsS=19, totSitesNS=12073, totSitesSS=5038, NS/S=2.396387, pN=0.003727, pS=0.003969, pN/pS=0.939022`
+834	GAC	D	178	1	8	0	1	GAC(D):177,AAC(N):1
+835	CAG	Q	178	1	8	0	0	CAG(Q):178
+836	ACG	T	178	3	6	0	0	ACG(T):178
+837	GGC	G	178	3	6	0	0	GGC(G):178
+838	AAT	N	178	1	8	0	0	AAT(N):178
+Rv0006 summary: codons=838, totObsNS=27, totObsS=11, totSitesNS=1877.67, totSitesS=636.33, NS/S=2.950760, pN=0.014904, pS=0.018828, pN/pS=0.791578
 ```
 **Collapsing identical isolates for PAML**
 input args: a fasta file with aligned sequences, and a Newick tree of those isolates
