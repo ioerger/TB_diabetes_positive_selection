@@ -57,6 +57,28 @@ refHdrs,refSeqs = read_fasta(REFSEQSFILE)
 for hdr,seq in zip(refHdrs,refSeqs):
   orfid = hdr[1:].split()[0] # strip off leading '>'; assume orfid is first symbol
   RefSeqs[orfid] = seq
+
+# nuc diffs could have occurred in any order
+
+def codon_pathways(ref,mut):
+  permutations = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]]
+  pathways = []
+  for perm in permutations:
+    codon,codonseq = list(ref),[ref]
+    for i in perm:
+      if ref[i]==mut[i]: continue
+      codon[i] = mut[i]
+      codonseq.append("".join(codon))
+    pathways.append(codonseq)
+
+  # reduce to unique pathways
+  hash = {}
+  for pathway in pathways: 
+    signature = '-'.join(pathway)
+    hash[signature] = pathway
+  pathways = list(hash.values())
+
+  return pathways
   
 ####################################
   
@@ -101,13 +123,33 @@ for i in range(Ncodons):
     if codon not in alleles: alleles[codon] = 0
     alleles[codon] += 1
 
+#  for mut,cnt in alleles.items(): # only good codons, including self
+#    if mut==ref: continue 
+#    mutaa = trans(mut)
+#    if mut in SNVs:
+#      if mutaa==refaa: obsS += 1
+#      else: obsNS += 1
+#    else: obsNS += 1; locNS += 1; print("warning: multiple changes in aa %s: %s -> %s" % (i+1,ref,mut)) # for codons with multiple nuc substitutions
+
   for mut,cnt in alleles.items(): # only good codons, including self
-    if mut==ref: continue 
+    diffs = sum([x!=y for (x,y) in zip(list(mut),list(ref))])
+    if diffs==0: continue
     mutaa = trans(mut)
-    if mut in SNVs:
+    if diffs==1:
       if mutaa==refaa: obsS += 1
       else: obsNS += 1
-    else: obsNS += 1; locNS += 1; print("warning: multiple changes in aa %s: %s -> %s" % (i+1,ref,mut)) # for codons with multiple nuc substitutions
+    else:
+      pathways = codon_pathways(ref,mut) # sequences of codons from ref->mut by 1 SNP at a time in random order
+      changesS,changesNS = 0,0
+      for pathway in pathways:
+        for j in range(len(pathway)-1):
+          if trans(pathway[j])!=trans(pathway[j+1]): changesNS += 1
+          else: changesS += 1
+      changesS = changesS/float(len(pathways)) # average over pathways
+      changesNS = changesNS/float(len(pathways))
+      obsS += changesS
+      obsNS += changesNS
+      #print("pathways=%s, diffs=%s, changesS=%s,changesNS=%s" % (len(pathways),diffs,changesS,changesNS))
 
   vals = [i+1,ref,refaa,good,locS,locNS,obsS,obsNS]
   vals.append(','.join(["%s(%s):%s" % (x,trans(x),y) for (x,y) in list(alleles.items())]))
